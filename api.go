@@ -984,9 +984,8 @@ func getContainersLinks(srv *Server, version float64, w http.ResponseWriter, r *
 	runtime := srv.runtime
 
 	out := []APILink{}
-	err := runtime.containerGraph.Walk(func(p string, e *gograph.Entity) error {
-		container := runtime.Get(e.ID())
-		if container != nil {
+	err := runtime.containerGraph.Walk("/", func(p string, e *gograph.Entity) error {
+		if container := runtime.Get(e.ID()); container != nil {
 			out = append(out, APILink{
 				Path:        p,
 				ContainerID: container.ID,
@@ -994,11 +993,10 @@ func getContainersLinks(srv *Server, version float64, w http.ResponseWriter, r *
 			})
 		}
 		return nil
-	})
+	}, -1)
 	if err != nil {
 		return err
 	}
-
 	return writeJSON(w, http.StatusOK, out)
 }
 
